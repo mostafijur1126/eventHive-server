@@ -3,14 +3,14 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "dist/server.js": {
-      "runtime": "@vercel/node"
+    "dist/app.js": {
+      "runtime": "@vercel/node@2.1.0"
     }
   },
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "dist/server.js"
+      "src": "\\/(.*)",
+      "dest": "dist/app.js"
     }
   ]
 }
