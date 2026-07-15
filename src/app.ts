@@ -2,11 +2,38 @@ import express from "express";
 import cors from "cors";
 import { ObjectId } from "mongodb";
 import { eventsCollection } from "./config/db";
+import { createRemoteJWKSet, jwtVerify } from "jose-cjs";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URI}/api/auth/jwks`),
+);
+
+const verifyToken = async (req, res, next) => {
+  const authHeaer = req.headers.authorization;
+
+  if (!authHeaer || !authHeaer.startsWith("Bearer")) {
+    return res.status(401).json({ msg: "Unauthorized" });
+  }
+
+  const token = authHeaer.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ msg: "Unauthorized" });
+  }
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+
+    // console.log(payload);
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({ msg: "Unauthorized" });
+  }
+};
 
 app.get("/", (_req, res) => {
   res.send({
@@ -15,7 +42,7 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.post("/events", async (req, res) => {
+app.post("/events", verifyToken, async (req, res) => {
   const payload = {
     ...req.body,
     createdAt: new Date(),
