@@ -10,7 +10,7 @@ export async function connectDB() {
     console.log("✅ MongoDB Connected");
   } catch (error) {
     console.error(error);
-    process.exit(1);
+    throw error;
   }
 }
 
