@@ -1,4 +1,9 @@
-import express from "express";
+import express, {
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+} from "express";
 import cors from "cors";
 import { ObjectId } from "mongodb";
 import { eventsCollection } from "./config/db";
@@ -13,7 +18,11 @@ const JWKS = createRemoteJWKSet(
   new URL(`${process.env.CLIENT_URI}/api/auth/jwks`),
 );
 
-const verifyToken = async (req, res, next) => {
+const verifyToken: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const authHeaer = req.headers.authorization;
 
   if (!authHeaer || !authHeaer.startsWith("Bearer")) {
